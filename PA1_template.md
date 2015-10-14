@@ -10,7 +10,7 @@ This assignment was divided into 5 sections:
 
 
 ## Loading and preprocessing the data
-Suppose that you already fecthed the repository to the local machine and stored to the "Documents/RepData"
+Suppose that you already fetched the repository to the local machine and stored all files into "Documents/RepoData"
 
 
 ```r
@@ -175,7 +175,7 @@ abline(h = average_steps,col="red",lwd=4)
 
 ```r
 # Plot the histogram
-hist(dataset_aggregate$steps, main = "Histogram of steps",xlab = 'Daily Steps', ylab = 'Frequency')
+hist(dataset_aggregate$steps, main = "Histogram of steps",xlab = 'Daily Steps', ylab = 'Frequency',breaks = 10)
 
 # Vertical line to show the step average
 abline(v = average_steps,col="red",lwd=4)
@@ -205,7 +205,7 @@ median_step <- summary(dataset_aggregate$steps)['Median']
 * Mean = 10770
 * Median = 10760
 
-## What is the average daily activity pattern?$
+## What is the average daily activity pattern?
 
 Analog of the above implementation, instead of day this question ask to `aggregate` by interval.
 
@@ -274,7 +274,7 @@ NA_steps <- summary(raw_dataset$steps)["NA's"]
 ```
 * There are 2304 intervals with `NA` value.
 
-The strategy to fill the `NA` is based in average for each day of the week.
+The strategy to fill the `NA` is based on steps average for each weekday.
 
 ```r
 # Using the dplyr package
@@ -302,7 +302,10 @@ Each weekday mean that will be used to fill `NA` values:
 
 
 ```r
-mean_weekday/288
+# Mean by interval
+mean_weekday <- mean_weekday/288
+
+mean_weekday
 ```
 
 ```
@@ -315,28 +318,132 @@ Substituing the `NA` with the `mean_weekday` values.
 
 ```r
 # Transforming the regular dataframe into a dplyr table
-raw_dataset <- tbl_df(raw_dataset)
+raw_dataset_NA_replace <- tbl_df(raw_dataset)
 
 # Mutate the raw_dataset to insert a new column of weekday
-raw_dataset <- mutate(raw_dataset,weekday = weekdays(raw_dataset$date))
+raw_dataset_NA_replace <- mutate(raw_dataset_NA_replace,weekday = weekdays(raw_dataset_NA_replace$date))
 
 # Loop to check each row
 for (j in weekdays_dataset) {
-        raw_dataset <- mutate(raw_dataset,
+        raw_dataset_NA_replace <- mutate(raw_dataset_NA_replace,
                               steps = ifelse(test = ( (weekday == j) & (is.na(steps) == TRUE) ),
                                              yes = mean_weekday[[j]] ,
                                              no = steps ) )
         }
 ```
 
-
-mean_weekday[j]
-
+Comparison with cleaned dataset and dataset with `NA` values replace by strategy adopth.
 
 
+```r
+# The aggregate function was used to sum steps of the same day
+dataset_aggregate_NA_replace <- aggregate(steps ~ date, data = raw_dataset_NA_replace, FUN = sum)
 
+# Plot the histogram with NA values replaced regarding the strategy
+hist(dataset_aggregate_NA_replace$steps, main = "Histogram of steps - With NA Fill Strategy",
+     xlab = 'Daily Steps', ylab = 'Frequency',breaks = 20)
 
+# Red Vertical line to show the step average with NA values replaced regarding the strategy
+abline(v = mean(dataset_aggregate_NA_replace$steps),col="red",lwd=4)
 
+# Blue Vertical line to show the step median with NA values replaced regarding the strategy
+abline(v = median(dataset_aggregate_NA_replace$steps),col="blue",lwd=4)
+```
 
+![](PA1_template_files/figure-html/hist_replace_steps_NA-1.png) 
+
+```r
+# Plot the histogram without NA values
+hist(dataset_aggregate$steps, main = "Histogram of steps - Without NA Values",
+     xlab = 'Daily Steps', ylab = 'Frequency',breaks = 20)
+
+# Red Vertical line to show the step average without NA values
+abline(v = mean(dataset_aggregate$steps),col="red",lwd=2)
+
+# Blue Vertical line to show the step average without NA values
+abline(v = median(dataset_aggregate$steps),col="blue",lwd=2)
+```
+
+![](PA1_template_files/figure-html/hist_replace_steps_NA-2.png) 
+
+The `summary` show the mean and median of `steps` after replace all `NA` values by the strategy adopt.
+
+```r
+summary(dataset_aggregate_NA_replace$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8918   11020   10820   12810   21190
+```
+
+Comparison before and after replace `NA` values.
+
+```r
+# Comparison Table
+rbind('Weekday Strategy' = summary(dataset_aggregate_NA_replace$steps),
+      'Without NA' = summary(dataset_aggregate$steps))[,3:4]
+```
+
+```
+##                  Median  Mean
+## Weekday Strategy  11020 10820
+## Without NA        10760 10770
+```
+
+The median and mean seems to be are much closer with the strategy adopt to fill `NA` values. This table confirms the slight variation observed in the last two histogram.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Creating a new factor to the raw dataset.
+
+```r
+# Creating a tbl_df()
+raw_dataset_new_factor <- tbl_df(raw_dataset)
+
+# Mutate the table base on weekday and weekend using the ifelse() function
+raw_dataset_new_factor <- mutate(raw_dataset_new_factor,
+                                New_factor = ifelse(test = weekdays(raw_dataset_new_factor$date) == c('Saturday','Sunday'), 
+                                                    yes = 'weekend', 
+                                                    no = 'weekday'))
+```
+
+Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+
+
+```r
+dataset_weekday <- filter(raw_dataset_new_factor,New_factor == "weekday")
+
+dataset_weekday_aggregate <- aggregate(steps ~ interval, data = dataset_weekday, FUN = mean)
+
+dataset_weekend <- filter(raw_dataset_new_factor,New_factor == "weekend")
+
+dataset_weekend_aggregate <- aggregate(steps ~ interval, data = dataset_weekend, FUN = mean)
+
+
+# Line graphic to show the time serie of average step by interval and the red vertical line to mark the maximum average step
+g1 <- ggplot(dataset_weekday_aggregate,aes(interval,steps))+
+        ggtitle("Time Series of weekday Average Steps by Interval") +
+        geom_line()
+
+# Line graphic to show the time serie of average step by interval and the red vertical line to mark the maximum average step
+g2 <- ggplot(dataset_weekend_aggregate,aes(interval,steps))+
+        ggtitle("Time Series of weekend Average Steps by Interval") +
+        geom_line()
+
+print(g1)
+```
+
+![](PA1_template_files/figure-html/weekday_weekend-1.png) 
+
+```r
+print(g2)
+```
+
+![](PA1_template_files/figure-html/weekday_weekend-2.png) 
+
+
+
+
+
+
