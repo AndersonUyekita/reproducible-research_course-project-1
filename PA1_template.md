@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 This assignment was divided into 5 sections:
 
@@ -17,14 +12,36 @@ This assignment was divided into 5 sections:
 ## Loading and preprocessing the data
 Suppose that you already fecthed the repository to the local machine and stored to the "Documents/RepData"
 
-```{r loadingdata, echo = TRUE, warning=FALSE}
+
+```r
 # Loading libraries
 library(ggplot2)
 library(dplyr)
+```
 
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 # Force results to be in English
 Sys.setlocale("LC_ALL","English")
+```
 
+```
+## [1] "LC_COLLATE=English_United States.1252;LC_CTYPE=English_United States.1252;LC_MONETARY=English_United States.1252;LC_NUMERIC=C;LC_TIME=English_United States.1252"
+```
+
+```r
 # Unzipping the compressed file
 unzip("activity.zip", list = FALSE, overwrite = TRUE)
 
@@ -34,40 +51,65 @@ raw_dataset <- read.csv("activity.csv")
 
 The first 5 lines of `raw_dataset`:
 
-```{r head_raw_dataset, echo = TRUE}
+
+```r
 head(raw_dataset,5)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
 ```
 
 Summary of each variable:
 
-```{r summary_raw_dataset, echo = TRUE}
+
+```r
 summary(raw_dataset)
+```
+
+```
+##      steps                date          interval     
+##  Min.   :  0.00   2012-10-01:  288   Min.   :   0.0  
+##  1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8  
+##  Median :  0.00   2012-10-03:  288   Median :1177.5  
+##  Mean   : 37.38   2012-10-04:  288   Mean   :1177.5  
+##  3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2  
+##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0  
+##  NA's   :2304     (Other)   :15840
 ```
 
 Type of variable:
 
-```{r type_raw_dataset, echo = TRUE}
+
+```r
 # Using the class() function to get the type of each variable
 steps_type <- class(raw_dataset$steps)
 date_type <- class(raw_dataset$date)
 interval_type <- class(raw_dataset$interval)
 ```
 
-* steps: `r steps_type`
-* date: `r date_type`
-* interval: `r interval_type`
+* steps: integer
+* date: factor
+* interval: integer
 
 Fixing the `date` variable to became `as.Date`.
 
-```{r date_correction, echo = TRUE}
+
+```r
 raw_dataset$date <- as.Date(raw_dataset$date)
 date_type <- class(raw_dataset$date)
 ```
 
-Now the date variable `date` is `r date_type` type.
+Now the date variable `date` is Date type.
 
 Eliminating the `NA` values:
-```{r complete_case, echo = TRUE}
+
+```r
 # Selection Vector used to eliminate rows with NA steps.
 selection_rows <- complete.cases(raw_dataset)
 
@@ -76,15 +118,26 @@ dataset <- raw_dataset[selection_rows,TRUE]
 ```
 
 The first 5 lines of the cleaned dataset:
-```{r dataset, echo = TRUE}
+
+```r
 head(dataset,5)
+```
+
+```
+##     steps       date interval
+## 289     0 2012-10-02        0
+## 290     0 2012-10-02        5
+## 291     0 2012-10-02       10
+## 292     0 2012-10-02       15
+## 293     0 2012-10-02       20
 ```
 
 ## What is mean total number of steps taken per day?
 
 1. The `dataset` has lines that correspond to a sample of a 5 minutes of the day. It is necessary to `aggregate` the rows with the same day to calculate the average of steps.
 
-```{r aggregate_steps, echo = TRUE}
+
+```r
 # The aggregate function was used to sum steps of the same day
 dataset_aggregate <- aggregate(steps ~ date, data = dataset, FUN = sum)
 
@@ -92,9 +145,19 @@ dataset_aggregate <- aggregate(steps ~ date, data = dataset, FUN = sum)
 head(dataset_aggregate,5)
 ```
 
-The barplot below shows the evolution of `steps` between `r min(dataset_aggregate$date)` and `r max(dataset_aggregate$date)`. This graphic intend to show the `step` variation during the period day by day.
+```
+##         date steps
+## 1 2012-10-02   126
+## 2 2012-10-03 11352
+## 3 2012-10-04 12116
+## 4 2012-10-05 13294
+## 5 2012-10-06 15420
+```
 
-```{r graphic_aggregate_steps, echo = TRUE}
+The barplot below shows the evolution of `steps` between 2012-10-02 and 2012-11-29. This graphic intend to show the `step` variation during the period day by day.
+
+
+```r
 # temporal historic of step using barplot
 barplot(dataset_aggregate$steps, names.arg = dataset_aggregate$date, xlab = "date", ylab = "steps",main =  "Temporal serie of steps")
 
@@ -105,9 +168,12 @@ average_steps <- mean(dataset_aggregate$steps)
 abline(h = average_steps,col="red",lwd=4)
 ```
 
+![](PA1_template_files/figure-html/graphic_aggregate_steps-1.png) 
+
 2. The the `steps` histogram is show below. This histogram intend to show the frequency of daily `steps`, what is the most comom and what is exceptions.
 
-```{r histogram_aggregate_steps, echo = TRUE}
+
+```r
 # Plot the histogram
 hist(dataset_aggregate$steps, main = "Histogram of steps",xlab = 'Daily Steps', ylab = 'Frequency')
 
@@ -115,26 +181,36 @@ hist(dataset_aggregate$steps, main = "Histogram of steps",xlab = 'Daily Steps', 
 abline(v = average_steps,col="red",lwd=4)
 ```
 
+![](PA1_template_files/figure-html/histogram_aggregate_steps-1.png) 
+
 The `summary` show the mean and median of `steps`.
-```{r summary_step, echo = TRUE}
+
+```r
 # Summary of steps
 summary(dataset_aggregate$steps)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10760   10770   13290   21190
+```
+
+```r
 # Results
 mean_step <- summary(dataset_aggregate$steps)['Mean']
 median_step <- summary(dataset_aggregate$steps)['Median']
-
 ```
 
 3. Results:
-* Mean = `r format(mean_step,digits = 1)`
-* Median = `r format(median_step,digits = 1)`
+* Mean = 10770
+* Median = 10760
 
 ## What is the average daily activity pattern?$
 
 Analog of the above implementation, instead of day this question ask to `aggregate` by interval.
 
-```{r aggregate_interval, echo = TRUE}
+
+```r
 # The aggregate function was used to "mean" steps of the same interval
 dataset_aggregate_interval <- aggregate(steps ~ interval, data = dataset, FUN = mean)
 
@@ -142,9 +218,19 @@ dataset_aggregate_interval <- aggregate(steps ~ interval, data = dataset, FUN = 
 head(dataset_aggregate_interval,5)
 ```
 
+```
+##   interval     steps
+## 1        0 1.7169811
+## 2        5 0.3396226
+## 3       10 0.1320755
+## 4       15 0.1509434
+## 5       20 0.0754717
+```
+
 The Time serie of Average Steps by Intreval
 
-```{r time_serie_interval, echo = TRUE}
+
+```r
 # Maximum Average by Interval
 max_step_average_interval <- max(dataset_aggregate_interval$steps)
 
@@ -158,23 +244,39 @@ ggplot(dataset_aggregate_interval,aes(interval,steps))+
         geom_vline(xintercept = interval_max_average , colour = "red" , size = 1)
 ```
 
-The maximum average step by interval is `r max_step_average_interval` and it is occurs during the interval `r interval_max_average`
+![](PA1_template_files/figure-html/time_serie_interval-1.png) 
+
+The maximum average step by interval is 206.1698113 and it is occurs during the interval 835
 
 ## Imputing missing values
 
 Summary the `raw_data`:
-```{r missing_values, echo = TRUE}
+
+```r
 summary(raw_dataset)
 ```
 
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
 Number of `NA` values in `steps`:
-```{r NA_step, echo = TRUE}
+
+```r
 NA_steps <- summary(raw_dataset$steps)["NA's"]
 ```
-* There are `r NA_steps` intervals with `NA` value.
+* There are 2304 intervals with `NA` value.
 
 The strategy to fill the `NA` is based in average for each day of the week.
-```{r strategy, echo = TRUE}
+
+```r
 # Using the dplyr package
 dataset_aggregate <- tbl_df(dataset_aggregate)
 
@@ -198,14 +300,20 @@ names(mean_weekday) <- c(weekdays_dataset)
 
 Each weekday mean that will be used to fill `NA` values:
 
-```{r results_weekday_mean, echo = TRUE}
+
+```r
 mean_weekday/288
+```
+
+```
+##   Tuesday Wednesday  Thursday    Friday  Saturday    Sunday    Monday 
+##  31.07485  40.94010  28.51649  42.91567  43.52579  42.63095  34.63492
 ```
 
 Substituing the `NA` with the `mean_weekday` values.
 
-```{r NA_to_weekdays, echo = TRUE}
 
+```r
 # Transforming the regular dataframe into a dplyr table
 raw_dataset <- tbl_df(raw_dataset)
 
@@ -219,7 +327,6 @@ for (j in weekdays_dataset) {
                                              yes = mean_weekday[[j]] ,
                                              no = steps ) )
         }
-
 ```
 
 
