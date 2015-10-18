@@ -141,7 +141,7 @@ head(dataset,5)
 # The aggregate function was used to sum steps of the same day
 dataset_aggregate <- aggregate(steps ~ date, data = dataset, FUN = sum)
 
-# The first 5 lines of the aggregate dataset
+# The first 5 lines of the aggregate dataset (total number of steps taken per day)
 head(dataset_aggregate,5)
 ```
 
@@ -341,7 +341,7 @@ dataset_aggregate_NA_replace <- aggregate(steps ~ date, data = raw_dataset_NA_re
 
 # Plot the histogram with NA values replaced regarding the strategy
 hist(dataset_aggregate_NA_replace$steps, main = "Histogram of steps - With NA Fill Strategy",
-     xlab = 'Daily Steps', ylab = 'Frequency',breaks = 20)
+     xlab = 'Daily Steps', ylab = 'Frequency',breaks = 10)
 
 # Red Vertical line to show the step average with NA values replaced regarding the strategy
 abline(v = mean(dataset_aggregate_NA_replace$steps),col="red",lwd=4)
@@ -352,21 +352,7 @@ abline(v = median(dataset_aggregate_NA_replace$steps),col="blue",lwd=4)
 
 ![](PA1_template_files/figure-html/hist_replace_steps_NA-1.png) 
 
-```r
-# Plot the histogram without NA values
-hist(dataset_aggregate$steps, main = "Histogram of steps - Without NA Values",
-     xlab = 'Daily Steps', ylab = 'Frequency',breaks = 20)
-
-# Red Vertical line to show the step average without NA values
-abline(v = mean(dataset_aggregate$steps),col="red",lwd=2)
-
-# Blue Vertical line to show the step average without NA values
-abline(v = median(dataset_aggregate$steps),col="blue",lwd=2)
-```
-
-![](PA1_template_files/figure-html/hist_replace_steps_NA-2.png) 
-
-The `summary` show the mean and median of `steps` after replace all `NA` values by the strategy adopt.
+The `summary` show the mean and median of `steps` after fill all `NA` values by the strategy adopt.
 
 ```r
 summary(dataset_aggregate_NA_replace$steps)
@@ -377,7 +363,7 @@ summary(dataset_aggregate_NA_replace$steps)
 ##      41    8918   11020   10820   12810   21190
 ```
 
-Comparison before and after replace `NA` values.
+Comparison before and after fill `NA` values.
 
 ```r
 # Comparison Table
@@ -391,15 +377,15 @@ rbind('Weekday Strategy' = summary(dataset_aggregate_NA_replace$steps),
 ## Without NA        10760 10770
 ```
 
-The median and mean seems to be are much closer with the strategy adopt to fill `NA` values. This table confirms the slight variation observed in the last two histogram.
+The strategy adopted to fill `NA` values makes the median and mean became farthest, as shown in the table above.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-Creating a new factor to the raw dataset.
+Adopting the same srategy to fill NA values.
 
 ```r
-# Creating a tbl_df()
-raw_dataset_new_factor <- tbl_df(raw_dataset)
+# Removing the additional column created to specify the day of the week in the later question.
+raw_dataset_new_factor <- select(raw_dataset_NA_replace,-weekday)
 
 # Mutate the table base on weekday and weekend using the ifelse() function
 raw_dataset_new_factor <- mutate(raw_dataset_new_factor,
@@ -412,38 +398,18 @@ Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-min
 
 
 ```r
-dataset_weekday <- filter(raw_dataset_new_factor,New_factor == "weekday")
-
-dataset_weekday_aggregate <- aggregate(steps ~ interval, data = dataset_weekday, FUN = mean)
-
-dataset_weekend <- filter(raw_dataset_new_factor,New_factor == "weekend")
-
-dataset_weekend_aggregate <- aggregate(steps ~ interval, data = dataset_weekend, FUN = mean)
+raw_dataset_new_factor_aggregate <- aggregate(steps ~ interval + New_factor, data = raw_dataset_new_factor, FUN = mean)
 
 
 # Line graphic to show the time serie of average step by interval and the red vertical line to mark the maximum average step
-g1 <- ggplot(dataset_weekday_aggregate,aes(interval,steps))+
-        ggtitle("Time Series of weekday Average Steps by Interval") +
-        geom_line()
-
-# Line graphic to show the time serie of average step by interval and the red vertical line to mark the maximum average step
-g2 <- ggplot(dataset_weekend_aggregate,aes(interval,steps))+
-        ggtitle("Time Series of weekend Average Steps by Interval") +
-        geom_line()
+g1 <- ggplot(raw_dataset_new_factor_aggregate,aes(interval,steps))+
+        ggtitle("Time Series Painel of Average Steps by Interval and Weekdays") +
+        geom_line()+
+        facet_grid(New_factor ~ .)
 
 print(g1)
 ```
 
 ![](PA1_template_files/figure-html/weekday_weekend-1.png) 
 
-```r
-print(g2)
-```
-
-![](PA1_template_files/figure-html/weekday_weekend-2.png) 
-
-
-
-
-
-
+The people seem to be more active on weekends and we cannot infer any standard activities behavior because all activities was spread on the day. Furthermore, the people seem to be more activities before the work on the weekdays.
