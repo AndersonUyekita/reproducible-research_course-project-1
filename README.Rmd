@@ -32,7 +32,13 @@ library(rmarkdown)
 `r sprintf(fmt = "* &#x1F4C6; %s", params$week)`
     `r sprintf(fmt = "* &#x1F6A6; Start: %s", format(params$course_start, "%A, %d %B %Y"))`
     `r sprintf(fmt = "* &#x1F3C1; Finish: %s", format(params$course_finish, "%A, %d %B %Y"))`
-`r if(!knitr::is_html_output()) {sprintf(fmt = "* &#x1F30E; Rpubs: [Interactive Document](%s)", params$rpubs)}else{sprintf(fmt = "* &#x1F4E6; Github Repository: [Static Document](%s){target='_blank' rel='noopener'}", params$project_repo)}`
+
+--------------------------------------------------------------------------------
+
+### Assignment Solution
+
+* &#x1F30E; Rpubs: [Interactive Document](https://rpubs.com/AndersonUyekita/course-project-1_reproducible-research)
+* &#x1F4E6; PA1_template: [Static Document](./PA1_template.md)
 
 --------------------------------------------------------------------------------
 

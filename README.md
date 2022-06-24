@@ -13,8 +13,14 @@
 -   📆 Week 2
     -   🚦 Start: Thursday, 23 June 2022
     -   🏁 Finish: Friday, 24 June 2022
+
+------------------------------------------------------------------------
+
+### Assignment Solution
+
 -   🌎 Rpubs: [Interactive
     Document](https://rpubs.com/AndersonUyekita/course-project-1_reproducible-research)
+-   📦 PA1_template: [Static Document](./PA1_template.md)
 
 ------------------------------------------------------------------------
 
