@@ -11,7 +11,7 @@ params:
   specialization_url: "https://www.coursera.org/specializations/data-science-foundations-r"
   instructor: "Roger D Peng"
   course_start: !r lubridate::ymd("2022/06/23")
-  course_finish: !r lubridate::today()
+  course_finish: !r lubridate::ymd("2022/06/24")
   week: "Week 2"
   slug: 'Week%202'
   rpubs: 'https://rpubs.com/AndersonUyekita/course-project-1_reproducible-research'

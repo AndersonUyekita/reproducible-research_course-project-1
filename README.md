@@ -12,7 +12,7 @@
     -   🧑‍🏫 Instructor: Roger D Peng
 -   📆 Week 2
     -   🚦 Start: Thursday, 23 June 2022
-    -   🏁 Finish: Thursday, 23 June 2022
+    -   🏁 Finish: Friday, 24 June 2022
 -   🌎 Rpubs: [Interactive
     Document](https://rpubs.com/AndersonUyekita/course-project-1_reproducible-research)
 
