@@ -18,7 +18,7 @@
 
 ------------------------------------------------------------------------
 
-## Sinopsis
+## Synopsis
 
 Course Project 1 aims to answer questions and accomplish tasks to create
 a Reproducible Research. The dataset used for this assignment is the
